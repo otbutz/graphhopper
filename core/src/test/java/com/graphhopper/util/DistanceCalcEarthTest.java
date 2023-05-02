@@ -17,6 +17,7 @@
  */
 package com.graphhopper.util;
 
+import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,7 @@ public class DistanceCalcEarthTest {
     @Test
     public void testCalcCircumference() {
         assertEquals(DistanceCalcEarth.C, dc.calcCircumference(0), 1e-7);
+        System.out.println(dc.calcCircumference(90));
     }
 
     @Test
@@ -330,5 +332,29 @@ public class DistanceCalcEarthTest {
         point = distCalc.intermediatePoint(0.75, 45, -90, 45, 90);
         assertEquals(67.5, point.getLat(), 1e-1);
         assertEquals(90, point.getLon(), 1e-5);
+    }
+
+    @Test
+    public void testWrapAround() {
+        DistanceCalcEarth distCalc = new DistanceCalcEarth();
+
+        // no-op
+        assertEquals(89, distCalc.normalizeLat(89), 1e-4);
+        assertEquals(-89, distCalc.normalizeLat(-89), 1e-4);
+        assertEquals(179, distCalc.normalizeLon(179), 1e-4);
+        assertEquals(-179, distCalc.normalizeLon(-179), 1e-4);
+
+        // positive wrap-around
+        assertEquals(-89, distCalc.normalizeLat(91), 1e-4);
+        assertEquals(-179, distCalc.normalizeLon(181), 1e-4);
+
+        // negative wrap-around
+        assertEquals(89, distCalc.normalizeLat(-91), 1e-4);
+        assertEquals(179, distCalc.normalizeLon(-181), 1e-4);
+
+        BBox pos = distCalc.createBBox(0, 180, 100000);
+        BBox neg = distCalc.createBBox(0, -180, 100000);
+
+        assertEquals(pos, neg);
     }
 }
