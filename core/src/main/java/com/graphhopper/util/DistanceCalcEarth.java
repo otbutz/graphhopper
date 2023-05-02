@@ -112,8 +112,34 @@ public class DistanceCalcEarth implements DistanceCalc {
         // length of a circle is independent of the longitude
         double dLat = (360 / (DistanceCalcEarth.C / radiusInMeter));
 
+        double lon1 = normalizeLon(lon - dLon);
+        double lon2 = normalizeLon(lon + dLon);
+        double lat1 = normalizeLat(lat - dLat);
+        double lat2 = normalizeLat(lat + dLat);
+
         // Now return bounding box in coordinates
-        return new BBox(lon - dLon, lon + dLon, lat - dLat, lat + dLat);
+        return new BBox(Math.min(lon1, lon2), Math.max(lon1, lon2),
+                Math.min(lat1, lat2), Math.max(lat1, lat2));
+    }
+
+    public double normalizeLat(double lat_deg) {
+        if (lat_deg < -90) {
+            return lat_deg + 180;
+        }
+        if (lat_deg > 90) {
+            return lat_deg - 180;
+        }
+        return lat_deg;
+    }
+
+    public double normalizeLon(double lon_deg) {
+        if (lon_deg < -180) {
+            return lon_deg + 360;
+        }
+        if (lon_deg > 180) {
+            return lon_deg - 360;
+        }
+        return lon_deg;
     }
 
     @Override
